@@ -14,24 +14,58 @@ namespace NotesApp
 
             while (true)
             {
-                Console.WriteLine("Would you like to write a note or read a note?");
+                Console.WriteLine(Menu.MainMenu);
                 string input = Console.ReadLine();
                 if (input == "")
                 {
                     break;
                 }
-                else if (input.ToLower() == "write")
+                else if (input.ToLower() == "1")
                 {
                     List<Note> notes = DeserializeNotes(fileName);
                     AddNote(fileName, notes);
                 }
-                else if (input.ToLower() == "read")
+                else if (input.ToLower() == "2")
+                {
+                    ReadRecentNotes(fileName);
+                }
+                else if (input.ToLower() == "3")
                 {
                     ReadNote(fileName);
                 }
                 
             }
 
+        }
+        static void ReadRecentNotes(string fileName)
+        {
+            List<Note> notes = DeserializeNotes(fileName);
+            bool done = false;
+            int count = notes.Count - 1;
+            while (done != true)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    if (count < 0)
+                    {
+                        Console.WriteLine("There are no more entries.");
+                        break;
+                    }
+                    Console.WriteLine(notes[count].Date + "\n");
+                    Console.WriteLine("    " + notes[count].Content + "\n");
+                    count--;                 
+                }
+                Console.WriteLine(
+                    "Would you like to read more entries?\n" +
+                    "1) Yes\n" +
+                    "2) No\n"
+                    );
+                string input = Console.ReadLine();
+                if (input == "2")
+                {
+                    done = true;
+                }
+            }
         }
 
         static List<Note> DeserializeNotes(string fileName)
@@ -59,24 +93,19 @@ namespace NotesApp
             string input = Console.ReadLine();
             if (Int32.TryParse(input, out int value))
             {
-                List<Note> notes;
-                var serializer = new JsonSerializer();
-                using (var reader = new StreamReader(fileName))
-                using (var jsonReader = new JsonTextReader(reader))
+                List<Note> notes = DeserializeNotes(fileName);                
+                Note note;
+                try
                 {
-                    notes = serializer.Deserialize<List<Note>>(jsonReader);
-                    Note note;
-                    try
-                    {
-                        note = notes[value];
-                        Console.WriteLine(note.Content);
-                    }
-                    catch
-                    {
-                        Console.WriteLine("That note doesn't exist.");
-                    }
-                    
+                    note = notes[value];
+                    Console.WriteLine(note.Content);
                 }
+                catch
+                {
+                    Console.WriteLine("That note doesn't exist.");
+                }
+                    
+                
             }
             else
             {
